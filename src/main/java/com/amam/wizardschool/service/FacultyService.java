@@ -2,62 +2,48 @@ package com.amam.wizardschool.service;
 
 import com.amam.wizardschool.exception.FacultyNotFoundException;
 import com.amam.wizardschool.model.Faculty;
+import com.amam.wizardschool.repository.FacultyRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Optional;
 
 @Service
 public class FacultyService {
-    private Long id = 0L;
-    private final Map<Long, Faculty> faculties;
 
-    public FacultyService() {
-        this.faculties = new HashMap<>();
+    private FacultyRepository facultyRepository;
+
+    public FacultyService(FacultyRepository facultyRepository) {
+        this.facultyRepository = facultyRepository;
     }
 
     public Faculty createFaculty(Faculty faculty) {
-        faculty.setId(++id);
-        faculties.put(id, faculty);
-        return faculty;
+        return facultyRepository.save(faculty);
     }
 
-    public Faculty editFaculty(Faculty faculty) throws FacultyNotFoundException {
-        if (faculties.get(faculty.getId()) == null) {
-            throw new FacultyNotFoundException("Факультет не найден в базе");
+    public Optional<Faculty> editFaculty(Faculty faculty) {
+        return findFaculty(faculty.getId()).isPresent() ?
+                Optional.of(facultyRepository.save(faculty)) :
+                Optional.empty();
+    }
+
+    public Optional<Faculty> findFaculty(Long id) {
+        return facultyRepository.findById(id);
+    }
+
+    public void deleteFaculty(Long id) throws FacultyNotFoundException {
+        if (findFaculty(id).isEmpty()) {
+            throw new FacultyNotFoundException("Faculty is not found");
         }
-
-        faculties.put(faculty.getId(), faculty);
-        return faculty;
+        facultyRepository.deleteById(id);
     }
 
-    public Faculty findFaculty(Long id) throws FacultyNotFoundException {
-        if (faculties.get(id) == null) {
-            throw new FacultyNotFoundException("Факультет не найден в базе");
-        }
-
-        return faculties.get(id);
+    public Collection<Faculty> getFaculties() {
+        return facultyRepository.findAll();
     }
 
-    public Faculty deleteFaculty(Long id) throws FacultyNotFoundException {
-        Faculty deletedFaculty = findFaculty(id);
-        return faculties.remove(deletedFaculty.getId());
-    }
-
-    public Map<Long, Faculty> getFaculties() {
-        return faculties;
-    }
-
-    public Collection<Faculty> getFacultyByColor(String color) throws FacultyNotFoundException {
-        List<Faculty> collection =  faculties.values()
-                .stream()
-                .filter(faculty -> Objects.equals(faculty.getColor(), color))
-                .toList();
-
-        if (collection.isEmpty()) {
-            throw new FacultyNotFoundException("Ни один факультет не подходит под условие");
-        }
-
-        return collection;
+    public Collection<Faculty> getFacultyByColor(String color) {
+        return facultyRepository.getFacultyByColor(color);
     }
 
 }
