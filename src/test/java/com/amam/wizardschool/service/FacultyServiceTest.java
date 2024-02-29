@@ -2,13 +2,17 @@ package com.amam.wizardschool.service;
 
 import com.amam.wizardschool.exception.FacultyNotFoundException;
 import com.amam.wizardschool.model.Faculty;
+import com.amam.wizardschool.model.Student;
 import com.amam.wizardschool.repository.FacultyRepository;
+import com.amam.wizardschool.repository.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,16 +25,19 @@ class FacultyServiceTest {
 
     private FacultyService out;
 
-    // Замокал, т.к. у нас разные БД и при тестировании с другой БД будет кидать ошибки
     @Mock
     private FacultyRepository facultyRepositoryMock;
+
+    @Mock
+    private StudentRepository studentRepositoryMock;
     private final Faculty faculty1 = new Faculty();
     private final Faculty faculty2 = new Faculty();
+    private final Student student = new Student();
 
 
     @BeforeEach
     public void setUp() {
-        out = new FacultyService(facultyRepositoryMock);
+        out = new FacultyService(facultyRepositoryMock, studentRepositoryMock);
 
         faculty1.setId(1L);
         faculty1.setName("AAA");
@@ -40,6 +47,10 @@ class FacultyServiceTest {
         faculty2.setName("BBB");
         faculty2.setColor("Blue");
 
+        student.setAge(15);
+        student.setName("AAA");
+        student.setId(1L);
+        student.setFaculty(faculty1);
     }
 
     @Test
@@ -81,13 +92,13 @@ class FacultyServiceTest {
 
     @Test
     public void whenFindFacultiesByColorShouldReturnCollectionOfFaculties() {
-        when(facultyRepositoryMock.getFacultyByColor("Red")).thenReturn(List.of(faculty1));
+        when(facultyRepositoryMock.getFacultyByColorIgnoreCase("Red")).thenReturn(List.of(faculty1));
         assertEquals(out.getFacultyByColor("Red"), List.of(faculty1));
     }
 
     @Test
     public void whenFindFacultiesByColorShouldReturnEmptyCollection() {
-        when(facultyRepositoryMock.getFacultyByColor("Green")).thenReturn(List.of());
+        when(facultyRepositoryMock.getFacultyByColorIgnoreCase("Green")).thenReturn(List.of());
         assertEquals(out.getFacultyByColor("Green"), List.of());
     }
 
@@ -96,6 +107,27 @@ class FacultyServiceTest {
         when(facultyRepositoryMock.findById(1L)).thenReturn(Optional.empty());
         assertThrows(FacultyNotFoundException.class, () -> out.deleteFaculty(1L));
     }
+
+    @Test
+    public void whenGetFacultyByNameShouldReturnCorrectFaculty() {
+        when(facultyRepositoryMock.findFacultyByNameIgnoreCaseOrColorIgnoreCase("AAA", null))
+                .thenReturn(List.of(faculty1));
+        assertEquals(out.getFacultyByNameOrColorIgnoreCase("AAA", null), List.of(faculty1));
+    }
+
+    @Test
+    public void whenGetFacultyByColorShouldReturnCorrectFaculty() {
+        when(facultyRepositoryMock.findFacultyByNameIgnoreCaseOrColorIgnoreCase(null, "BBB"))
+                .thenReturn(List.of(faculty2));
+        assertEquals(out.getFacultyByNameOrColorIgnoreCase(null, "BBB"), List.of(faculty2));
+    }
+
+    @Test
+    public void whenGetStudentsInFacultyByFacultyIDShouldReturnCollectionOfStudents() {
+        when(studentRepositoryMock.getStudentsByFaculty_id(1L)).thenReturn(List.of(student));
+        assertEquals(out.getStudentsFromFaculty(1L), List.of(student));
+    }
+
 
 
 }

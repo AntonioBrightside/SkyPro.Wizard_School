@@ -2,7 +2,9 @@ package com.amam.wizardschool.service;
 
 import com.amam.wizardschool.exception.FacultyNotFoundException;
 import com.amam.wizardschool.model.Faculty;
+import com.amam.wizardschool.model.Student;
 import com.amam.wizardschool.repository.FacultyRepository;
+import com.amam.wizardschool.repository.StudentRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -11,10 +13,12 @@ import java.util.Optional;
 @Service
 public class FacultyService {
 
-    private FacultyRepository facultyRepository;
+    private final FacultyRepository facultyRepository;
+    private final StudentRepository studentRepository;
 
-    public FacultyService(FacultyRepository facultyRepository) {
+    public FacultyService(FacultyRepository facultyRepository, StudentRepository studentRepository) {
         this.facultyRepository = facultyRepository;
+        this.studentRepository = studentRepository;
     }
 
     public Faculty createFaculty(Faculty faculty) {
@@ -43,7 +47,15 @@ public class FacultyService {
     }
 
     public Collection<Faculty> getFacultyByColor(String color) {
-        return facultyRepository.getFacultyByColor(color);
+        return facultyRepository.getFacultyByColorIgnoreCase(color);
+    }
+
+    public Collection<Faculty> getFacultyByNameOrColorIgnoreCase(String name, String color) {
+        return facultyRepository.findFacultyByNameIgnoreCaseOrColorIgnoreCase(name, color);
+    }
+
+    public Collection<Student> getStudentsFromFaculty(Long id) {
+        return studentRepository.getStudentsByFaculty_id(id);
     }
 
 }
