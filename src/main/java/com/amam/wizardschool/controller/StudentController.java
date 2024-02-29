@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/student")
@@ -19,49 +18,44 @@ public class StudentController {
     }
 
     @GetMapping("/all")
-    public Map<Long, Student> getStudents() {
+    public Collection<Student> getStudents() {
         return studentService.getStudents();
     }
 
     @GetMapping("{id}")
     public ResponseEntity<Student> getStudent(@PathVariable("id") Long id) {
-        try {
-            return ResponseEntity.ok(studentService.findStudent(id));
-        } catch (StudentNotFoundException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        return studentService.findStudent(id).isPresent() ?
+                ResponseEntity.ok(studentService.findStudent(id).get()) :
+                ResponseEntity.badRequest().build();
+
     }
 
     @GetMapping
     public ResponseEntity<Collection<Student>> getStudentsByAge(@RequestParam("age") int age) {
-        try {
-            return ResponseEntity.ok(studentService.getStudentsByAge(age));
-        } catch (StudentNotFoundException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        return ResponseEntity.ok(studentService.getStudentsByAge(age));
     }
 
     @PostMapping
-    public Student createStudent(@RequestBody Student student) {
-        return studentService.createStudent(student);
+    public ResponseEntity<Student> createStudent(@RequestBody Student student) {
+        return ResponseEntity.ok(studentService.createStudent(student));
     }
 
     @PutMapping
     public ResponseEntity<Student> editStudent(@RequestBody Student student) {
-        try {
-            return ResponseEntity.ok(studentService.editStudent(student));
-        } catch (StudentNotFoundException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        return studentService.editStudent(student).isPresent() ?
+                ResponseEntity.ok(studentService.editStudent(student).get()) :
+                ResponseEntity.badRequest().build();
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Student> deleteStudent(@PathVariable("id") Long id) {
+    public ResponseEntity<?> deleteStudent(@PathVariable("id") Long id) throws StudentNotFoundException {
         try {
-            return ResponseEntity.ok(studentService.deleteStudent(id));
+            studentService.deleteStudent(id);
+            return ResponseEntity.ok().build();
         } catch (StudentNotFoundException e) {
             return ResponseEntity.badRequest().build();
         }
+
     }
 
 }
