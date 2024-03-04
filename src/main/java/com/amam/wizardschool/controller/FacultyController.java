@@ -5,12 +5,10 @@ import com.amam.wizardschool.model.Faculty;
 import com.amam.wizardschool.model.Student;
 import com.amam.wizardschool.service.FacultyService;
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/faculty")
