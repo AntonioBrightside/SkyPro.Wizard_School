@@ -1,13 +1,10 @@
 package com.amam.wizardschool.model;
 
-import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 
 import java.util.Objects;
-import java.util.Set;
 
 @Entity(name = "faculties")
 public class Faculty {
@@ -18,9 +15,9 @@ public class Faculty {
     private String name;
     private String color;
 
-    @OneToMany(mappedBy = "faculty")
-    @JsonIgnore
-    private Set<Student> students;
+//    @OneToMany(mappedBy = "faculty")
+//    @JsonIgnore
+//    private Set<Student> students;
 
 
     public Long getId() {
@@ -47,13 +44,13 @@ public class Faculty {
         this.color = color;
     }
 
-    public Set<Student> getStudents() {
-        return students;
-    }
-
-    public void setStudents(Set<Student> students) {
-        this.students = students;
-    }
+//    public Set<Student> getStudents() {
+//        return students;
+//    }
+//
+//    public void setStudents(Set<Student> students) {
+//        this.students = students;
+//    }
 
     @Override
     public boolean equals(Object o) {
@@ -74,7 +71,6 @@ public class Faculty {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", color='" + color + '\'' +
-                ", students=" + students +
                 '}';
     }
 }
