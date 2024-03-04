@@ -5,6 +5,7 @@ import com.amam.wizardschool.model.Faculty;
 import com.amam.wizardschool.model.Student;
 import com.amam.wizardschool.service.StudentService;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,47 +20,49 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    @GetMapping("/all")
-    @Operation(summary = "Get all students")
-    public Collection<Student> getStudents() {
-        return studentService.getStudents();
+    @GetMapping
+    @Operation(summary = "Get all students / Get students by Age / Get students by Age between two values")
+    public ResponseEntity<Collection<Student>> getStudents(@RequestParam(required = false) Integer age,
+                                                           @RequestParam(required = false, defaultValue = "0") Integer minAge,
+                                                           @RequestParam(required = false, defaultValue = "1000") Integer maxAge) {
+        if (age != null) {
+            return ResponseEntity.ok(studentService.getStudentsByAge(age));
+        }
+
+        if (minAge != null || maxAge != null) {
+            return ResponseEntity.ok(studentService.getStudentsByAgeBetween(minAge, maxAge));
+        }
+
+        return ResponseEntity.ok(studentService.getStudents()); // Из-за условия выше код не дойдёт до этого выхода
     }
 
     @GetMapping("{id}")
     @Operation(summary = "Get student by ID")
     public ResponseEntity<Student> getStudent(@PathVariable("id") Long id) {
-        return studentService.findStudent(id).isPresent() ?
-                ResponseEntity.ok(studentService.findStudent(id).get()) :
-                ResponseEntity.badRequest().build();
+        return studentService.findStudent(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
 
     }
 
-    @GetMapping("/age/{age}")
-    @Operation(summary = "Get students by Age")
-    public ResponseEntity<Collection<Student>> getStudentsByAge(@PathVariable int age) {
-        return ResponseEntity.ok(studentService.getStudentsByAge(age));
-    }
-
-    @GetMapping("/age")
-    @Operation(summary = "Get students by Age between two values")
-    public ResponseEntity<Collection<Student>> getStudentsByAgeBetween(@RequestParam(required = false, defaultValue = "0") int min,
-                                                                       @RequestParam(required = false, defaultValue = "1000") int max) {
-        return ResponseEntity.ok(studentService.getStudentsByAgeBetween(min, max));
-    }
+//    @GetMapping("/age") // TODO: CHANGE
+//    @Operation(summary = "Get students by Age between two values")
+//    public ResponseEntity<Collection<Student>> getStudentsByAgeBetween(@RequestParam(required = false, defaultValue = "0") int min,
+//                                                                       @RequestParam(required = false, defaultValue = "1000") int max) {
+//        return ;
+//    }
 
 
     @PostMapping
     @Operation(summary = "Create student")
     public ResponseEntity<Student> createStudent(@RequestBody Student student) {
+        student.setId(null);
         return ResponseEntity.ok(studentService.createStudent(student));
     }
 
     @PutMapping
     @Operation(summary = "Edit student")
     public ResponseEntity<Student> editStudent(@RequestBody Student student) {
-        return studentService.editStudent(student).isPresent() ?
-                ResponseEntity.ok(studentService.editStudent(student).get()) :
-                ResponseEntity.badRequest().build();
+        return studentService.editStudent(student).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+
     }
 
     @DeleteMapping("{id}")
@@ -79,7 +82,7 @@ public class StudentController {
         try {
             return ResponseEntity.ok(studentService.getStudentFaculty(id));
         } catch (StudentNotFoundException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.notFound().build();
         }
     }
 

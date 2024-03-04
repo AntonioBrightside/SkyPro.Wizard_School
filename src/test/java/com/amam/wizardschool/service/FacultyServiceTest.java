@@ -110,16 +110,16 @@ class FacultyServiceTest {
 
     @Test
     public void whenGetFacultyByNameShouldReturnCorrectFaculty() {
-        when(facultyRepositoryMock.findFacultyByNameIgnoreCaseOrColorIgnoreCase("AAA", null))
+        when(facultyRepositoryMock.findFacultyByNameIgnoreCaseOrColorIgnoreCase("AAA"))
                 .thenReturn(List.of(faculty1));
-        assertEquals(out.getFacultyByNameOrColorIgnoreCase("AAA", null), List.of(faculty1));
+        assertEquals(out.getFacultyByNameOrColorIgnoreCase("AAA"), List.of(faculty1));
     }
 
     @Test
     public void whenGetFacultyByColorShouldReturnCorrectFaculty() {
-        when(facultyRepositoryMock.findFacultyByNameIgnoreCaseOrColorIgnoreCase(null, "BBB"))
+        when(facultyRepositoryMock.findFacultyByNameIgnoreCaseOrColorIgnoreCase("Blue"))
                 .thenReturn(List.of(faculty2));
-        assertEquals(out.getFacultyByNameOrColorIgnoreCase(null, "BBB"), List.of(faculty2));
+        assertEquals(out.getFacultyByNameOrColorIgnoreCase("Blue"), List.of(faculty2));
     }
 
     @Test

@@ -25,6 +25,7 @@ public class FacultyService {
         return facultyRepository.save(faculty);
     }
 
+
     public Optional<Faculty> editFaculty(Faculty faculty) {
         return findFaculty(faculty.getId()).isPresent() ?
                 Optional.of(facultyRepository.save(faculty)) :
@@ -46,12 +47,13 @@ public class FacultyService {
         return facultyRepository.findAll();
     }
 
+    @Deprecated
     public Collection<Faculty> getFacultyByColor(String color) {
         return facultyRepository.getFacultyByColorIgnoreCase(color);
     }
 
-    public Collection<Faculty> getFacultyByNameOrColorIgnoreCase(String name, String color) {
-        return facultyRepository.findFacultyByNameIgnoreCaseOrColorIgnoreCase(name, color);
+    public Collection<Faculty> getFacultyByNameOrColorIgnoreCase(String nameOrColor) {
+        return facultyRepository.findFacultyByNameIgnoreCaseOrColorIgnoreCase(nameOrColor);
     }
 
     public Collection<Student> getStudentsFromFaculty(Long id) {

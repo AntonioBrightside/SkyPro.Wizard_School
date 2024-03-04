@@ -12,7 +12,7 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     Collection<Student> findByAge(int age);
 
-    Collection<Student> findByAgeBetween(int min, int max);
+    Collection<Student> findByAgeBetween(int minAge, int maxAge);
 
 //    @Query(
 //            value = "SELECT * FROM students WHERE faculty_id = :faculty_id",

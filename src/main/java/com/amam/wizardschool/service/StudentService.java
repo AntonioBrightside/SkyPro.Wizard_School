@@ -39,6 +39,7 @@ public class StudentService {
         studentRepository.deleteById(id);
     }
 
+    @Deprecated(since = "SQL task")
     public Collection<Student> getStudents() {
         return studentRepository.findAll();
     }
@@ -47,14 +48,11 @@ public class StudentService {
         return studentRepository.findByAge(age);
     }
 
-    public Collection<Student> getStudentsByAgeBetween(int min, int max) {
-        return studentRepository.findByAgeBetween(min, max);
+    public Collection<Student> getStudentsByAgeBetween(int minAge, int maxAge) {
+        return studentRepository.findByAgeBetween(minAge, maxAge);
     }
 
     public Faculty getStudentFaculty(Long id) throws StudentNotFoundException {
-        if (findStudent(id).isEmpty()) {
-            throw new StudentNotFoundException("Student is not found");
-        }
-        return findStudent(id).get().getFaculty();
+        return findStudent(id).map(Student::getFaculty).orElseThrow(() -> new StudentNotFoundException("Student is not found"));
     }
 }

@@ -1,5 +1,6 @@
 package com.amam.wizardschool.model;
 
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 
 import java.util.Objects;
