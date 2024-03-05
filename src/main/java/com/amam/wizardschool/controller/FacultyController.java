@@ -47,7 +47,6 @@ public class FacultyController {
     @PostMapping
     @Operation(summary = "Create faculty")
     public Faculty createFaculty(@RequestBody Faculty faculty) {
-        faculty.setId(null);
         return facultyService.createFaculty(faculty);
     }
 

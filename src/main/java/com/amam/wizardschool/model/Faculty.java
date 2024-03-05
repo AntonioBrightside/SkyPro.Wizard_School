@@ -14,12 +14,6 @@ public class Faculty {
     private Long id;
     private String name;
     private String color;
-
-//    @OneToMany(mappedBy = "faculty")
-//    @JsonIgnore
-//    private Set<Student> students;
-
-
     public Long getId() {
         return id;
     }

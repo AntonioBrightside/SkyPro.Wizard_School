@@ -5,7 +5,6 @@ import com.amam.wizardschool.model.Faculty;
 import com.amam.wizardschool.model.Student;
 import com.amam.wizardschool.service.StudentService;
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,17 +22,13 @@ public class StudentController {
     @GetMapping
     @Operation(summary = "Get all students / Get students by Age / Get students by Age between two values")
     public ResponseEntity<Collection<Student>> getStudents(@RequestParam(required = false) Integer age,
-                                                           @RequestParam(required = false, defaultValue = "0") Integer minAge,
-                                                           @RequestParam(required = false, defaultValue = "1000") Integer maxAge) {
+                                                           @RequestParam(required = false, defaultValue = "0") int minAge,
+                                                           @RequestParam(required = false, defaultValue = "1000") int maxAge) {
         if (age != null) {
             return ResponseEntity.ok(studentService.getStudentsByAge(age));
         }
 
-        if (minAge != null || maxAge != null) {
-            return ResponseEntity.ok(studentService.getStudentsByAgeBetween(minAge, maxAge));
-        }
-
-        return ResponseEntity.ok(studentService.getStudents()); // Из-за условия выше код не дойдёт до этого выхода
+        return ResponseEntity.ok(studentService.getStudentsByAgeBetween(minAge, maxAge));
     }
 
     @GetMapping("{id}")
@@ -43,18 +38,9 @@ public class StudentController {
 
     }
 
-//    @GetMapping("/age") // TODO: CHANGE
-//    @Operation(summary = "Get students by Age between two values")
-//    public ResponseEntity<Collection<Student>> getStudentsByAgeBetween(@RequestParam(required = false, defaultValue = "0") int min,
-//                                                                       @RequestParam(required = false, defaultValue = "1000") int max) {
-//        return ;
-//    }
-
-
     @PostMapping
     @Operation(summary = "Create student")
     public ResponseEntity<Student> createStudent(@RequestBody Student student) {
-        student.setId(null);
         return ResponseEntity.ok(studentService.createStudent(student));
     }
 
