@@ -10,9 +10,10 @@ import java.util.Collection;
 @Repository
 public interface FacultyRepository extends JpaRepository<Faculty, Long> {
 
-    @Query(
-            value = "SELECT * FROM faculties WHERE color = :color",
-            nativeQuery = true
-    )
-    Collection<Faculty> getFacultyByColor(String color);
+    Collection<Faculty> getFacultyByColorIgnoreCase(String color);
+
+    @Query(value = "SELECT * FROM faculties WHERE color = :nameOrColor OR name = :nameOrColor",
+           nativeQuery = true)
+    Collection<Faculty> findFacultyByNameIgnoreCaseOrColorIgnoreCase(String nameOrColor);
+
 }

@@ -14,8 +14,6 @@ public class Faculty {
     private Long id;
     private String name;
     private String color;
-
-
     public Long getId() {
         return id;
     }
@@ -39,6 +37,14 @@ public class Faculty {
     public void setColor(String color) {
         this.color = color;
     }
+
+//    public Set<Student> getStudents() {
+//        return students;
+//    }
+//
+//    public void setStudents(Set<Student> students) {
+//        this.students = students;
+//    }
 
     @Override
     public boolean equals(Object o) {

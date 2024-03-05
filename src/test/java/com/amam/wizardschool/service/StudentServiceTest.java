@@ -1,6 +1,7 @@
 package com.amam.wizardschool.service;
 
 import com.amam.wizardschool.exception.StudentNotFoundException;
+import com.amam.wizardschool.model.Faculty;
 import com.amam.wizardschool.model.Student;
 import com.amam.wizardschool.repository.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.rmi.StubNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +28,7 @@ class StudentServiceTest {
     private StudentRepository studentRepositoryMock;
     private final Student student1 = new Student();
     private final Student student2 = new Student();
+    private final Faculty faculty = new Faculty();
 
 
     @BeforeEach
@@ -35,10 +38,15 @@ class StudentServiceTest {
         student1.setId(1L);
         student1.setAge(15);
         student1.setName("AAA");
+        student1.setFaculty(faculty);
 
         student2.setId(1L);
         student2.setAge(14);
         student2.setName("BBB");
+
+        faculty.setColor("Red");
+        faculty.setName("AAA");
+        faculty.setId(1L);
 
     }
 
@@ -81,13 +89,13 @@ class StudentServiceTest {
 
     @Test
     public void whenFindStudentsByAgeShouldReturnCollectionOfStudents() {
-        when(studentRepositoryMock.findByAgeLike(15)).thenReturn(List.of(student1));
+        when(studentRepositoryMock.findByAge(15)).thenReturn(List.of(student1));
         assertEquals(out.getStudentsByAge(15), List.of(student1));
     }
 
     @Test
     public void whenFindStudentsByAgeShouldReturnEmptyCollection() {
-        when(studentRepositoryMock.findByAgeLike(20)).thenReturn(List.of());
+        when(studentRepositoryMock.findByAge(20)).thenReturn(List.of());
         assertEquals(out.getStudentsByAge(20), List.of());
     }
 
@@ -96,4 +104,24 @@ class StudentServiceTest {
         when(studentRepositoryMock.findById(1L)).thenReturn(Optional.empty());
         assertThrows(StudentNotFoundException.class, () -> out.deleteStudent(1L));
     }
+
+    @Test
+    public void whenGetStudentsBetween10And15ShouldReturnCollection() {
+        when(studentRepositoryMock.findByAgeBetween(10, 15)).thenReturn(List.of(student2));
+        assertEquals(out.getStudentsByAgeBetween(10, 15), List.of(student2));
+    }
+
+    @Test
+    public void whenGetStudentFacultyShouldReturnFaculty() throws StudentNotFoundException {
+        when(studentRepositoryMock.findById(1L)).thenReturn(Optional.of(student1));
+        assertEquals(out.getStudentFaculty(1L), faculty);
+    }
+
+    @Test
+    public void whenGetStudentFacultyShouldThrowException() {
+        when(studentRepositoryMock.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(StudentNotFoundException.class, () -> out.getStudentFaculty(1L));
+    }
+
+
 }

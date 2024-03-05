@@ -10,9 +10,13 @@ import java.util.Collection;
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Long> {
 
-    @Query(
-            value = "SELECT * FROM students WHERE age = :age",
-            nativeQuery = true
-    )
-    Collection<Student> findByAgeLike(int age);
+    Collection<Student> findByAge(int age);
+
+    Collection<Student> findByAgeBetween(int minAge, int maxAge);
+
+//    @Query(
+//            value = "SELECT * FROM students WHERE faculty_id = :faculty_id",
+//            nativeQuery = true
+//    )
+    Collection<Student> getStudentsByFaculty_id(Long id);
 }

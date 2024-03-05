@@ -1,6 +1,7 @@
 package com.amam.wizardschool.service;
 
 import com.amam.wizardschool.exception.StudentNotFoundException;
+import com.amam.wizardschool.model.Faculty;
 import com.amam.wizardschool.model.Student;
 import com.amam.wizardschool.repository.StudentRepository;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ public class StudentService {
     }
 
     public Student createStudent(Student student) {
+        student.setId(null);
         return studentRepository.save(student);
     }
 
@@ -38,11 +40,20 @@ public class StudentService {
         studentRepository.deleteById(id);
     }
 
+    @Deprecated(since = "SQL task")
     public Collection<Student> getStudents() {
         return studentRepository.findAll();
     }
 
     public Collection<Student> getStudentsByAge(int age) {
-        return studentRepository.findByAgeLike(age);
+        return studentRepository.findByAge(age);
+    }
+
+    public Collection<Student> getStudentsByAgeBetween(int minAge, int maxAge) {
+        return studentRepository.findByAgeBetween(minAge, maxAge);
+    }
+
+    public Faculty getStudentFaculty(Long id) throws StudentNotFoundException {
+        return findStudent(id).map(Student::getFaculty).orElseThrow(() -> new StudentNotFoundException("Student is not found"));
     }
 }

@@ -2,7 +2,9 @@ package com.amam.wizardschool.service;
 
 import com.amam.wizardschool.exception.FacultyNotFoundException;
 import com.amam.wizardschool.model.Faculty;
+import com.amam.wizardschool.model.Student;
 import com.amam.wizardschool.repository.FacultyRepository;
+import com.amam.wizardschool.repository.StudentRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -11,15 +13,19 @@ import java.util.Optional;
 @Service
 public class FacultyService {
 
-    private FacultyRepository facultyRepository;
+    private final FacultyRepository facultyRepository;
+    private final StudentRepository studentRepository;
 
-    public FacultyService(FacultyRepository facultyRepository) {
+    public FacultyService(FacultyRepository facultyRepository, StudentRepository studentRepository) {
         this.facultyRepository = facultyRepository;
+        this.studentRepository = studentRepository;
     }
 
     public Faculty createFaculty(Faculty faculty) {
+        faculty.setId(null);
         return facultyRepository.save(faculty);
     }
+
 
     public Optional<Faculty> editFaculty(Faculty faculty) {
         return findFaculty(faculty.getId()).isPresent() ?
@@ -42,8 +48,17 @@ public class FacultyService {
         return facultyRepository.findAll();
     }
 
+    @Deprecated
     public Collection<Faculty> getFacultyByColor(String color) {
-        return facultyRepository.getFacultyByColor(color);
+        return facultyRepository.getFacultyByColorIgnoreCase(color);
+    }
+
+    public Collection<Faculty> getFacultyByNameOrColorIgnoreCase(String nameOrColor) {
+        return facultyRepository.findFacultyByNameIgnoreCaseOrColorIgnoreCase(nameOrColor);
+    }
+
+    public Collection<Student> getStudentsFromFaculty(Long id) {
+        return studentRepository.getStudentsByFaculty_id(id);
     }
 
 }
