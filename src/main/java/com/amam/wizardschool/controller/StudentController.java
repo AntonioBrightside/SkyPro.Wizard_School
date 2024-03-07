@@ -1,22 +1,38 @@
 package com.amam.wizardschool.controller;
 
+import com.amam.wizardschool.exception.AvatarNotFoundException;
 import com.amam.wizardschool.exception.StudentNotFoundException;
+import com.amam.wizardschool.model.Avatar;
 import com.amam.wizardschool.model.Faculty;
 import com.amam.wizardschool.model.Student;
+import com.amam.wizardschool.service.AvatarService;
 import com.amam.wizardschool.service.StudentService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 
 @RestController
 @RequestMapping("/student")
 public class StudentController {
     private final StudentService studentService;
+    private final AvatarService avatarService;
 
-    public StudentController(StudentService studentService) {
+    public StudentController(StudentService studentService, AvatarService avatarService) {
         this.studentService = studentService;
+        this.avatarService = avatarService;
     }
 
     @GetMapping
@@ -38,10 +54,51 @@ public class StudentController {
 
     }
 
+    @GetMapping("{id}/avatar")
+    @Operation(summary = "Get students full size avatar or small version")
+    public ResponseEntity<?> donwloadAvatar(@PathVariable("id") Long id,
+                                            @RequestParam(required = false, defaultValue = "false") @Parameter(description = "Return small Avatar if necessary. True - return") Boolean smallAvatar,
+                                            HttpServletResponse response) throws IOException {
+        try {
+            Avatar avatar = avatarService.findAvatar(id);
+
+            if (smallAvatar) {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.parseMediaType(avatar.getMediaType()));
+                headers.setContentLength(avatar.getSmallPhoto().length);
+
+                return ResponseEntity.status(HttpStatus.OK).headers(headers).body(avatar.getSmallPhoto());
+            }
+
+            Path path = Path.of(avatar.getFilePath());
+
+            try (InputStream is = Files.newInputStream(path);
+                 OutputStream os = response.getOutputStream();) {
+                response.setContentType(avatar.getMediaType());
+                response.setContentLength(avatar.getFileSize().intValue());
+                is.transferTo(os);
+            }
+
+            return ResponseEntity.ok().build();
+
+        } catch (AvatarNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+
+    }
+
     @PostMapping
     @Operation(summary = "Create student")
     public ResponseEntity<Student> createStudent(@RequestBody Student student) {
         return ResponseEntity.ok(studentService.createStudent(student));
+    }
+
+    @PostMapping(value = "/{id}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Upload avatar")
+    public ResponseEntity<String> uploadAvatar(@PathVariable Long id,
+                                               @RequestParam MultipartFile file) throws IOException, StudentNotFoundException {
+        avatarService.uploadAvatar(id, file);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping

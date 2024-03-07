@@ -6,6 +6,7 @@ target/
 
 ### MINE ###
 .mvn/wrapper
+data/
 
 
 ### STS ###
