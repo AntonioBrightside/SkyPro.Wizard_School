@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
@@ -38,7 +39,16 @@ public class AvatarService {
                 .orElseThrow(() -> new StudentNotFoundException("Student was not found"));
         Path filePath = Path.of(avatarsDir, student.getId() + "." + getExtension(file.getOriginalFilename()));
         Files.createDirectories(filePath.getParent());
-        Files.deleteIfExists(filePath);
+
+        avatarRepository.findById(id).ifPresent(o -> {
+            try {
+                Files.deleteIfExists(Path.of(o.getFilePath()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+//        Files.deleteIfExists(filePath);
 
         try (
                 InputStream is = file.getInputStream();
@@ -54,7 +64,7 @@ public class AvatarService {
         avatar.setFilePath(filePath.toString());
         avatar.setFileSize(file.getSize());
         avatar.setMediaType(file.getContentType());
-        avatar.setSmallPhoto(file.getBytes()); // TODO: подгружает некорректную картинку. Разобраться
+        avatar.setSmallPhoto(file.getBytes()); // TODO: подгружает некорректную картинку. Разобраться при использовании  generateSmallPhoto()
         avatarRepository.save(avatar);
     }
 

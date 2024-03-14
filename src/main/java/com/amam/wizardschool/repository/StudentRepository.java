@@ -14,9 +14,5 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     Collection<Student> findByAgeBetween(int minAge, int maxAge);
 
-//    @Query(
-//            value = "SELECT * FROM students WHERE faculty_id = :faculty_id",
-//            nativeQuery = true
-//    )
     Collection<Student> getStudentsByFaculty_id(Long id);
 }

@@ -56,7 +56,7 @@ public class StudentController {
 
     @GetMapping("{id}/avatar")
     @Operation(summary = "Get students full size avatar or small version")
-    public ResponseEntity<?> donwloadAvatar(@PathVariable("id") Long id,
+    public ResponseEntity<?> downloadAvatar(@PathVariable("id") Long id,
                                             @RequestParam(required = false, defaultValue = "false") @Parameter(description = "Return small Avatar if necessary. True - return") Boolean smallAvatar,
                                             HttpServletResponse response) throws IOException {
         try {
