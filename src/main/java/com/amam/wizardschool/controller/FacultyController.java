@@ -5,6 +5,7 @@ import com.amam.wizardschool.model.Faculty;
 import com.amam.wizardschool.model.Student;
 import com.amam.wizardschool.service.FacultyService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collection;
 
 @RestController
+@Tag(name="Faculties", description = "Endpoints to work with Faculties")
 @RequestMapping("/faculty")
 public class FacultyController {
 
@@ -21,7 +23,7 @@ public class FacultyController {
         this.facultyService = facultyService;
     }
 
-    @GetMapping
+    @GetMapping(params = "nameOrColor")
     @Operation(summary = "Get all faculties / Get faculty by Name or Color")
     public ResponseEntity<Collection<Faculty>> getFaculties(@RequestParam(required = false) String nameOrColor) {
 
