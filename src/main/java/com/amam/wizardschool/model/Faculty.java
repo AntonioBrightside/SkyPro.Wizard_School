@@ -38,14 +38,6 @@ public class Faculty {
         this.color = color;
     }
 
-//    public Set<Student> getStudents() {
-//        return students;
-//    }
-//
-//    public void setStudents(Set<Student> students) {
-//        this.students = students;
-//    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

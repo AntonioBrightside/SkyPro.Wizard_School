@@ -1,5 +1,6 @@
 package com.amam.wizardschool.service;
 
+import com.amam.wizardschool.exception.FacultyNotFoundException;
 import com.amam.wizardschool.exception.StudentNotFoundException;
 import com.amam.wizardschool.model.Faculty;
 import com.amam.wizardschool.model.Student;
@@ -51,7 +52,7 @@ class StudentServiceTest {
     }
 
     @Test
-    public void whenCreateStudentShouldReturnStudent() {
+    public void whenCreateStudentShouldReturnStudent() throws FacultyNotFoundException {
         when(studentRepositoryMock.save(student1)).thenReturn(student1);
         assertEquals(out.createStudent(student1), student1);
     }

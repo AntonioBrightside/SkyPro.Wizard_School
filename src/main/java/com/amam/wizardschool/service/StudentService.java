@@ -1,5 +1,6 @@
 package com.amam.wizardschool.service;
 
+import com.amam.wizardschool.exception.FacultyNotFoundException;
 import com.amam.wizardschool.exception.StudentNotFoundException;
 import com.amam.wizardschool.model.Faculty;
 import com.amam.wizardschool.model.Student;
@@ -18,8 +19,13 @@ public class StudentService {
         this.studentRepository = studentRepository;
     }
 
-    public Student createStudent(Student student) {
+    public Student createStudent(Student student) throws FacultyNotFoundException {
         student.setId(null);
+
+        if (student.getFaculty() == null) {
+            throw new FacultyNotFoundException("You should fill in faculty information");
+        }
+
         return studentRepository.save(student);
     }
 
