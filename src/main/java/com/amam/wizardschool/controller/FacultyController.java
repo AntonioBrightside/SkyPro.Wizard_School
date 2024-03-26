@@ -23,7 +23,7 @@ public class FacultyController {
         this.facultyService = facultyService;
     }
 
-    @GetMapping(params = "nameOrColor")
+    @GetMapping
     @Operation(summary = "Get all faculties / Get faculty by Name or Color")
     public ResponseEntity<Collection<Faculty>> getFaculties(@RequestParam(required = false) String nameOrColor) {
 
