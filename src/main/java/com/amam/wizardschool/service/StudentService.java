@@ -62,4 +62,16 @@ public class StudentService {
     public Faculty getStudentFaculty(Long id) throws StudentNotFoundException {
         return findStudent(id).map(Student::getFaculty).orElseThrow(() -> new StudentNotFoundException("Student is not found"));
     }
+
+    public int getStudentsAmount() {
+        return studentRepository.getStudentsAmount();
+    }
+
+    public float getAverageAge() {
+        return studentRepository.getAverageAge();
+    }
+
+    public Collection<Student> getLastFive() {
+        return studentRepository.getLastFive();
+    }
 }

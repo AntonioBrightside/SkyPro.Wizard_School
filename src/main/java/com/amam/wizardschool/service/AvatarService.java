@@ -1,12 +1,15 @@
 package com.amam.wizardschool.service;
 
+import com.amam.wizardschool.dto.AvatarDto;
 import com.amam.wizardschool.exception.AvatarNotFoundException;
 import com.amam.wizardschool.exception.StudentNotFoundException;
+import com.amam.wizardschool.mapper.AvatarMapper;
 import com.amam.wizardschool.model.Avatar;
 import com.amam.wizardschool.model.Student;
 import com.amam.wizardschool.repository.AvatarRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,7 +19,8 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
@@ -25,13 +29,15 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 public class AvatarService {
     private final StudentService studentService;
     private final AvatarRepository avatarRepository;
+    public final AvatarMapper avatarMapper;
 
     @Value("${path.to.avatars.dir}")
     private String avatarsDir;
 
-    public AvatarService(StudentService studentService, AvatarRepository avatarRepository) {
+    public AvatarService(StudentService studentService, AvatarRepository avatarRepository, AvatarMapper avatarMapper) {
         this.studentService = studentService;
         this.avatarRepository = avatarRepository;
+        this.avatarMapper = avatarMapper;
     }
 
     public void uploadAvatar(Long id, MultipartFile file) throws IOException, StudentNotFoundException {
@@ -96,5 +102,12 @@ public class AvatarService {
             return baos.toByteArray();
 
         }
+    }
+
+    public Collection<AvatarDto> getAllAvatars(int pages, int size) {
+        return avatarRepository.findAll(PageRequest.of(pages - 1, size))
+                .get()
+                .map(avatarMapper::toDto)
+                .collect(Collectors.toList());
     }
 }
