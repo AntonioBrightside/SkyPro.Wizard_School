@@ -18,6 +18,7 @@ public class Avatar {
     @JoinColumn(name = "id")
     private Student student;
 
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -69,4 +70,5 @@ public class Avatar {
     public void setSmallPhoto(byte[] smallPhoto) {
         this.smallPhoto = smallPhoto;
     }
+
 }

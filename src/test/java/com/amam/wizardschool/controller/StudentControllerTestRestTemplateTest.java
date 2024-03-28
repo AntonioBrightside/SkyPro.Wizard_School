@@ -1,5 +1,6 @@
 package com.amam.wizardschool.controller;
 
+import com.amam.wizardschool.dto.AvatarDto;
 import com.amam.wizardschool.exception.StudentNotFoundException;
 import com.amam.wizardschool.model.Faculty;
 import com.amam.wizardschool.model.Student;
@@ -263,26 +264,26 @@ class StudentControllerTestRestTemplateTest {
                 Map.of("minAge", minAge, "maxAge", maxAge)).getBody()).isEqualTo(expected);
     }
 
-    @Test
-    public void whenPostAvatarShouldReturn200Response() {
-        Student student = studentRepository.findAll().get(0);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("file", new FileSystemResource("src/test/resources/for_tests/to_test.jpg"));
-
-
-        assertThat(testRestTemplate.exchange(URL + "/" + student.getId() + "/avatar",
-                HttpMethod.POST,
-                new HttpEntity<>(body, headers),
-                String.class).getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        /* Сохраняет в папку Java аватар, нужно удалить или придумать иной способ*/
-    }
-
 //    @Test
+//    public void whenPostAvatarShouldReturn200Response() {
+//        Student student = studentRepository.findAll().get(0);
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+//
+//        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+//        body.add("file", new FileSystemResource("src/test/resources/for_tests/to_test.jpg"));
+//
+//
+//        assertThat(testRestTemplate.exchange(URL + "/" + student.getId() + "/avatar",
+//                HttpMethod.POST,
+//                new HttpEntity<>(body, headers),
+//                String.class).getStatusCode()).isEqualTo(HttpStatus.OK);
+//
+//        /* Сохраняет в папку Java аватар, нужно удалить или придумать иной способ*/
+//    }
+
+    //    @Test
 //    public void whenGetAvatarShouldReturnAvatarFromDisk() {
 //        Student student = studentRepository.findAll().get(0);
 //
@@ -312,25 +313,53 @@ class StudentControllerTestRestTemplateTest {
                 byte[].class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
+//    @Test
+//    public void whenGetAvatarShouldReturnAvatarFromDB() {
+//        Student student = studentRepository.findAll().get(0);
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+//
+//        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+//        body.add("file", new FileSystemResource("src/test/resources/for_tests/to_test.jpg"));
+
+//      /* Сохраняет в папку Java аватар, нужно удалить или придумать иной способ*/
+//        testRestTemplate.exchange(URL + "/" + student.getId() + "/avatar",
+//                HttpMethod.POST,
+//                new HttpEntity<>(body, headers),
+//                String.class);
+//
+//        assertThat(testRestTemplate.exchange(URL + "/" + student.getId() + "/avatar?smallAvatar=true",
+//                HttpMethod.GET,
+//                null,
+//                byte[].class).getStatusCode()).isEqualTo(HttpStatus.OK);
+//    }
+
     @Test
-    public void whenGetAvatarShouldReturnAvatarFromDB() {
-        Student student = studentRepository.findAll().get(0);
+    public void getStudentsAmountPositiveValue() {
+        int expected = studentRepository.getStudentsAmount();
+        assertThat(testRestTemplate.getForObject("%s?countStudents=true".formatted(URL), Integer.class))
+                .isEqualTo(expected);
+    }
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+    @Test
+    public void getAverageAgeReturnPositiveValue() {
+        float expected = studentRepository.getAverageAge();
+        assertThat(testRestTemplate.getForObject("%s?avAge=true".formatted(URL), Float.class))
+                .isEqualTo(expected);
 
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("file", new FileSystemResource("src/test/resources/for_tests/to_test.jpg"));
+    }
 
-        testRestTemplate.exchange(URL + "/" + student.getId() + "/avatar",
-                HttpMethod.POST,
-                new HttpEntity<>(body, headers),
-                String.class);
+    @Test
+    public void getLastFiveStudentsPositive() {
+        Collection<Student> expectedStudents = studentRepository.getLastFive();
 
-        assertThat(testRestTemplate.exchange(URL + "/" + student.getId() + "/avatar?smallAvatar=true",
+        assertThat(testRestTemplate.exchange("%s?lastFive=true".formatted(URL),
                 HttpMethod.GET,
                 null,
-                byte[].class).getStatusCode()).isEqualTo(HttpStatus.OK);
+                new ParameterizedTypeReference<List<Student>>() {
+                }).getBody()).isEqualTo(expectedStudents);
     }
+
 
 }

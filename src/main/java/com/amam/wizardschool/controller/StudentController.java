@@ -1,5 +1,6 @@
 package com.amam.wizardschool.controller;
 
+import com.amam.wizardschool.dto.AvatarDto;
 import com.amam.wizardschool.exception.AvatarNotFoundException;
 import com.amam.wizardschool.exception.FacultyNotFoundException;
 import com.amam.wizardschool.exception.StudentNotFoundException;
@@ -8,14 +9,18 @@ import com.amam.wizardschool.model.Faculty;
 import com.amam.wizardschool.model.Student;
 import com.amam.wizardschool.service.AvatarService;
 import com.amam.wizardschool.service.StudentService;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +34,7 @@ import java.util.Collection;
 @RestController
 @Tag(name = "Students", description = "Endpoints to work with Students")
 @RequestMapping("/student")
+@Validated
 public class StudentController {
     private final StudentService studentService;
     private final AvatarService avatarService;
@@ -38,16 +44,64 @@ public class StudentController {
         this.avatarService = avatarService;
     }
 
-    @GetMapping
-    @Operation(summary = "Get all students / Get students by Age / Get students by Age between two values")
-    public ResponseEntity<Collection<Student>> getStudents(@RequestParam(required = false) Integer age,
-                                                           @RequestParam(required = false, defaultValue = "0") int minAge,
-                                                           @RequestParam(required = false, defaultValue = "1000") int maxAge) {
-        if (age != null) {
-            return ResponseEntity.ok(studentService.getStudentsByAge(age));
-        }
+//    @GetMapping
+//    @Operation(summary = "Get all students / Get students by Age / Get students by Age between two values / Get amount of students / Get average students age / Get last 5 students")
+//    public ResponseEntity<?> getStudents(@RequestParam(required = false) @Parameter(description = "Return students by definite age") Integer age,
+//                                         @RequestParam(required = false, defaultValue = "0") @Parameter(description = "MIN value of age to return") int minAge,
+//                                         @RequestParam(required = false, defaultValue = "1000") @Parameter(description = "MAX value of age to return") int maxAge,
+//                                         @RequestParam(required = false, defaultValue = "false") @Parameter(description = "TRUE - return amount of students") boolean countStudents,
+//                                         @RequestParam(required = false, defaultValue = "false") @Parameter(description = "TRUE - return average age of students") boolean avAge,
+//                                         @RequestParam(required = false, defaultValue = "false") @Parameter(description = "TRUE - return last five students") boolean lastFive) {
+//
+//        if (age != null) {
+//            return ResponseEntity.ok(studentService.getStudentsByAge(age));
+//        }
+//
+//        if (countStudents) {
+//            return ResponseEntity.ok(studentService.getStudentsAmount());
+//        }
+//
+//        if (avAge) {
+//            return ResponseEntity.ok(studentService.getAverageAge());
+//        }
+//
+//        if (lastFive) {
+//            return ResponseEntity.ok(studentService.getLastFive());
+//        }
+//
+//        return ResponseEntity.ok(studentService.getStudentsByAgeBetween(minAge, maxAge));
+//    }
 
+
+    @GetMapping(params = "age")
+    @Operation(summary = "Get students by Age / Get students by Age between two values / Get last 5 students")
+    public ResponseEntity<Collection<Student>> getStudentsByAge(@RequestParam @Parameter(description = "Return students by definite age") Integer age) {
+        return ResponseEntity.ok(studentService.getStudentsByAge(age));
+    }
+
+    @GetMapping(params = {"minAge", "maxAge"})
+    @Operation(summary = "Get all students / Get students by Age / Get students by Age between two values / Get last 5 students")
+    public ResponseEntity<Collection<Student>> getStudentsByAgeBetween(@RequestParam @Parameter(description = "MIN value of age to return") int minAge,
+                                                                       @RequestParam @Parameter(description = "MAX value of age to return") int maxAge) {
         return ResponseEntity.ok(studentService.getStudentsByAgeBetween(minAge, maxAge));
+    }
+
+    @GetMapping(params = "lastFive")
+    @Operation(summary = "Get students by Age / Get students by Age between two values / Get last 5 students")
+    public ResponseEntity<Collection<Student>> getLastFiveStudents(@RequestParam @Parameter(description = "TRUE - return last five students") boolean lastFive) {
+        return ResponseEntity.ok(studentService.getLastFive());
+    }
+
+    @GetMapping(params = "countStudents")
+    @Operation(summary = "Get amount of students")
+    public ResponseEntity<Integer> countStudents(@RequestParam(defaultValue = "false") @Parameter(description = "TRUE - return amount of students") boolean countStudents) {
+        return ResponseEntity.ok(studentService.getStudentsAmount());
+    }
+
+    @GetMapping(params = "avAge")
+    @Operation(summary = "Get average students age")
+    public ResponseEntity<Float> studentsAverageAge(@RequestParam(defaultValue = "false") @Parameter(description = "TRUE - return average age of students") boolean avAge) {
+        return ResponseEntity.ok(studentService.getAverageAge());
     }
 
     @GetMapping("{id}")
@@ -57,7 +111,8 @@ public class StudentController {
 
     }
 
-    @GetMapping(value = "{id}/avatar")
+    //TODO: Вынести в AvatarController. Разнести эндпоинты
+    @GetMapping("{id}/avatar")
     @Operation(summary = "Get students full size avatar or small version")
     public ResponseEntity<?> downloadAvatar(@PathVariable("id") Long id,
                                             @RequestParam(required = false, defaultValue = "false") @Parameter(description = "Return small Avatar if necessary. True - return") Boolean smallAvatar,
@@ -88,6 +143,13 @@ public class StudentController {
             return ResponseEntity.notFound().build();
         }
 
+    }
+
+    @GetMapping("/avatar")
+    @Operation(summary = "Get all avatars by pages")
+    public ResponseEntity<Collection<AvatarDto>> getAllAvatars(@RequestParam @Min(value = 1, message = "MIN page number is 1") int pages,
+                                                               @RequestParam @Min(value = 1, message = "MIN page size is 1") int size) {
+        return ResponseEntity.ok(avatarService.getAllAvatars(pages, size));
     }
 
     @PostMapping
@@ -122,7 +184,7 @@ public class StudentController {
 
     @DeleteMapping("{id}")
     @Operation(summary = "Delete student by ID")
-    public ResponseEntity<?> deleteStudent(@PathVariable("id") Long id) throws StudentNotFoundException {
+    public ResponseEntity<?> deleteStudent(@PathVariable("id") Long id) {
         try {
             studentService.deleteStudent(id);
             return ResponseEntity.ok().build();
@@ -133,7 +195,7 @@ public class StudentController {
 
     @GetMapping(value = "/faculty", params = "id")
     @Operation(summary = "Get student faculty")
-    public ResponseEntity<Faculty> getFaculty(@RequestParam Long id) throws StudentNotFoundException {
+    public ResponseEntity<Faculty> getFaculty(@RequestParam Long id) {
         try {
             return ResponseEntity.ok(studentService.getStudentFaculty(id));
         } catch (StudentNotFoundException e) {

@@ -8,6 +8,8 @@ import com.amam.wizardschool.repository.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -24,7 +26,6 @@ class StudentServiceTest {
 
     private StudentService out;
 
-    // Замокал, т.к. у нас разные БД и при тестировании с другой БД будет кидать ошибки
     @Mock
     private StudentRepository studentRepositoryMock;
     private final Student student1 = new Student();
@@ -123,6 +124,5 @@ class StudentServiceTest {
         when(studentRepositoryMock.findById(1L)).thenReturn(Optional.empty());
         assertThrows(StudentNotFoundException.class, () -> out.getStudentFaculty(1L));
     }
-
 
 }
