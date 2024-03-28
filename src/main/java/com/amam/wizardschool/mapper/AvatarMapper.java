@@ -11,7 +11,7 @@ public class AvatarMapper {
         AvatarDto avatarDto = new AvatarDto();
         avatarDto.setId(avatar.getId());
         avatarDto.setStudentName(avatar.getStudent().getName());
-        avatarDto.setURI("/student/%s/avatar".formatted(avatar.getId()));
+        avatarDto.setUri("/student/%s/avatar".formatted(avatar.getId()));
 
         return avatarDto;
     }

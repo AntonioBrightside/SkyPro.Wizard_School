@@ -44,32 +44,64 @@ public class StudentController {
         this.avatarService = avatarService;
     }
 
-    @GetMapping
-    @Operation(summary = "Get all students / Get students by Age / Get students by Age between two values / Get amount of students / Get average students age / Get last 5 students")
-    public ResponseEntity<?> getStudents(@RequestParam(required = false) @Parameter(description = "Return students by definite age") Integer age,
-                                         @RequestParam(required = false, defaultValue = "0") @Parameter(description = "MIN value of age to return") int minAge,
-                                         @RequestParam(required = false, defaultValue = "1000") @Parameter(description = "MAX value of age to return") int maxAge,
-                                         @RequestParam(required = false, defaultValue = "false") @Parameter(description = "TRUE - return amount of students") boolean countStudents,
-                                         @RequestParam(required = false, defaultValue = "false") @Parameter(description = "TRUE - return average age of students") boolean avAge,
-                                         @RequestParam(required = false, defaultValue = "false") @Parameter(description = "TRUE - return last five students") boolean lastFive) {
+//    @GetMapping
+//    @Operation(summary = "Get all students / Get students by Age / Get students by Age between two values / Get amount of students / Get average students age / Get last 5 students")
+//    public ResponseEntity<?> getStudents(@RequestParam(required = false) @Parameter(description = "Return students by definite age") Integer age,
+//                                         @RequestParam(required = false, defaultValue = "0") @Parameter(description = "MIN value of age to return") int minAge,
+//                                         @RequestParam(required = false, defaultValue = "1000") @Parameter(description = "MAX value of age to return") int maxAge,
+//                                         @RequestParam(required = false, defaultValue = "false") @Parameter(description = "TRUE - return amount of students") boolean countStudents,
+//                                         @RequestParam(required = false, defaultValue = "false") @Parameter(description = "TRUE - return average age of students") boolean avAge,
+//                                         @RequestParam(required = false, defaultValue = "false") @Parameter(description = "TRUE - return last five students") boolean lastFive) {
+//
+//        if (age != null) {
+//            return ResponseEntity.ok(studentService.getStudentsByAge(age));
+//        }
+//
+//        if (countStudents) {
+//            return ResponseEntity.ok(studentService.getStudentsAmount());
+//        }
+//
+//        if (avAge) {
+//            return ResponseEntity.ok(studentService.getAverageAge());
+//        }
+//
+//        if (lastFive) {
+//            return ResponseEntity.ok(studentService.getLastFive());
+//        }
+//
+//        return ResponseEntity.ok(studentService.getStudentsByAgeBetween(minAge, maxAge));
+//    }
 
-        if (age != null) {
-            return ResponseEntity.ok(studentService.getStudentsByAge(age));
-        }
 
-        if (countStudents) {
-            return ResponseEntity.ok(studentService.getStudentsAmount());
-        }
+    @GetMapping(params = "age")
+    @Operation(summary = "Get students by Age / Get students by Age between two values / Get last 5 students")
+    public ResponseEntity<Collection<Student>> getStudentsByAge(@RequestParam @Parameter(description = "Return students by definite age") Integer age) {
+        return ResponseEntity.ok(studentService.getStudentsByAge(age));
+    }
 
-        if (avAge) {
-            return ResponseEntity.ok(studentService.getAverageAge());
-        }
-
-        if (lastFive) {
-            return ResponseEntity.ok(studentService.getLastFive());
-        }
-
+    @GetMapping(params = {"minAge", "maxAge"})
+    @Operation(summary = "Get all students / Get students by Age / Get students by Age between two values / Get last 5 students")
+    public ResponseEntity<Collection<Student>> getStudentsByAgeBetween(@RequestParam @Parameter(description = "MIN value of age to return") int minAge,
+                                                                       @RequestParam @Parameter(description = "MAX value of age to return") int maxAge) {
         return ResponseEntity.ok(studentService.getStudentsByAgeBetween(minAge, maxAge));
+    }
+
+    @GetMapping(params = "lastFive")
+    @Operation(summary = "Get students by Age / Get students by Age between two values / Get last 5 students")
+    public ResponseEntity<Collection<Student>> getLastFiveStudents(@RequestParam @Parameter(description = "TRUE - return last five students") boolean lastFive) {
+        return ResponseEntity.ok(studentService.getLastFive());
+    }
+
+    @GetMapping(params = "countStudents")
+    @Operation(summary = "Get amount of students")
+    public ResponseEntity<Integer> countStudents(@RequestParam(defaultValue = "false") @Parameter(description = "TRUE - return amount of students") boolean countStudents) {
+        return ResponseEntity.ok(studentService.getStudentsAmount());
+    }
+
+    @GetMapping(params = "avAge")
+    @Operation(summary = "Get average students age")
+    public ResponseEntity<Float> studentsAverageAge(@RequestParam(defaultValue = "false") @Parameter(description = "TRUE - return average age of students") boolean avAge) {
+        return ResponseEntity.ok(studentService.getAverageAge());
     }
 
     @GetMapping("{id}")
@@ -79,6 +111,7 @@ public class StudentController {
 
     }
 
+    //TODO: Вынести в AvatarController. Разнести эндпоинты
     @GetMapping("{id}/avatar")
     @Operation(summary = "Get students full size avatar or small version")
     public ResponseEntity<?> downloadAvatar(@PathVariable("id") Long id,
@@ -151,7 +184,7 @@ public class StudentController {
 
     @DeleteMapping("{id}")
     @Operation(summary = "Delete student by ID")
-    public ResponseEntity<?> deleteStudent(@PathVariable("id") Long id)  {
+    public ResponseEntity<?> deleteStudent(@PathVariable("id") Long id) {
         try {
             studentService.deleteStudent(id);
             return ResponseEntity.ok().build();
@@ -162,7 +195,7 @@ public class StudentController {
 
     @GetMapping(value = "/faculty", params = "id")
     @Operation(summary = "Get student faculty")
-    public ResponseEntity<Faculty> getFaculty(@RequestParam Long id)  {
+    public ResponseEntity<Faculty> getFaculty(@RequestParam Long id) {
         try {
             return ResponseEntity.ok(studentService.getStudentFaculty(id));
         } catch (StudentNotFoundException e) {

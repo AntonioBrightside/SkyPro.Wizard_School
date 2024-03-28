@@ -4,7 +4,7 @@ public class AvatarDto {
 
     private long id;
     String studentName;
-    String URI;
+    String uri;
 
     public long getId() {
         return id;
@@ -22,11 +22,11 @@ public class AvatarDto {
         this.studentName = studentName;
     }
 
-    public String getURI() {
-        return URI;
+    public String getUri() {
+        return uri;
     }
 
-    public void setURI(String URI) {
-        this.URI = URI;
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 }
